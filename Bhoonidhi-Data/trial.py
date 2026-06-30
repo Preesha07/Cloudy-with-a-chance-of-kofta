@@ -2,6 +2,9 @@ import os
 import time
 import requests
 from concurrent.futures import ThreadPoolExecutor
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class BhoonidhiDataFetcher:
     def __init__(self, username, password, output_dir="./raw_bhoonidhi_data"):
@@ -128,8 +131,8 @@ class BhoonidhiDataFetcher:
 # ==========================================
 if __name__ == "__main__":
     # 1. Provide your authenticated login credentials 
-    BHOONIDHI_USER = "izma810"
-    BHOONIDHI_PASS = "Izma@810"
+    BHOONIDHI_USER = os.getenv("BHOONIDHI_USER")
+    BHOONIDHI_PASS = os.getenv("BHOONIDHI_PASS")
     
     # 2. Define geographical coordinates (Bounding Box) 
     # Example: Bounding Box framing portions of Northeast India (Assam / Brahmaputra basin)
