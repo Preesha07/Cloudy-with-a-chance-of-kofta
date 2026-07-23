@@ -3,3 +3,9 @@ __pycache__/
 SEN12MS-CR-TS/
 SEN12MSCR/
 
+*.safetensors
+*.bin
+*.pth
+venv/
+.cache/
+*.pt
