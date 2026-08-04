@@ -272,6 +272,57 @@ class MAEDecoder(nn.Module):
 
 
 # --------------------------------------------------------------------------- #
+# CMMD-style embedding-space loss (Jayasumana et al., "Rethinking FID", 2024)
+#
+# The paper compares real vs. generated *images* via MMD in a frozen CLIP
+# embedding space, arguing MMD's distribution-matching (vs. FID's Gaussian
+# moment-matching) avoids rewarding blurry, mean-seeking generators. CLIP
+# itself is trained on natural photos and has no meaningful representation
+# of SAR/multispectral satellite tiles, so there is no sensible pretrained
+# embedding model to import here. Instead this term reuses the model's own
+# ViT encoder as the embedding space: it compares the encoder's pooled
+# features on the real tile against its features on the masked-patch
+# reconstruction, so the pixel decoder is penalized for reconstructions
+# whose *feature distribution* collapses toward the dataset mean, on top of
+# (not instead of) the per-pixel loss.
+# --------------------------------------------------------------------------- #
+def _pairwise_sq_dists(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+    x2 = (x * x).sum(dim=1, keepdim=True)
+    y2 = (y * y).sum(dim=1, keepdim=True)
+    return (x2 + y2.T - 2.0 * x @ y.T).clamp_min(0.0)
+
+
+def gaussian_mmd2(
+    x: torch.Tensor, y: torch.Tensor, sigma: float | None = None
+) -> torch.Tensor:
+    """Unbiased squared MMD between two embedding batches, RBF kernel.
+
+    ``x``, ``y``: (N, D) and (M, D) embeddings. ``sigma=None`` picks the
+    bandwidth via the median pairwise-distance heuristic (computed without
+    gradient — it only sizes the kernel, it isn't a modeled quantity).
+    """
+    n, m = x.size(0), y.size(0)
+    if n < 2 or m < 2:
+        return x.new_zeros(())
+
+    if not sigma:
+        with torch.no_grad():
+            pooled = torch.cat([x, y], dim=0)
+            d2 = _pairwise_sq_dists(pooled, pooled)
+            sigma2 = d2[d2 > 0].median().clamp_min(1e-6)
+    else:
+        sigma2 = sigma * sigma
+
+    def _kernel(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
+        return torch.exp(-_pairwise_sq_dists(a, b) / (2.0 * sigma2))
+
+    kxx, kyy, kxy = _kernel(x, x), _kernel(y, y), _kernel(x, y)
+    off_xx = (kxx.sum() - kxx.diagonal().sum()) / (n * (n - 1))
+    off_yy = (kyy.sum() - kyy.diagonal().sum()) / (m * (m - 1))
+    return off_xx + off_yy - 2.0 * kxy.mean()
+
+
+# --------------------------------------------------------------------------- #
 # MAE pretraining wrapper
 # --------------------------------------------------------------------------- #
 @dataclass
@@ -290,6 +341,40 @@ class MAEConfig:
     mlp_ratio: float = 4.0
     mask_ratio: float = 0.75
     norm_pix_loss: bool = True  # per-patch normalized target — sharper features
+    recon_loss: str = "l2"  # "l2" (MSE), "l1", or "charbonnier" (smooth L1)
+    cmmd_weight: float = 0.0  # weight of the CMMD-style embedding-space term; 0 = off
+    cmmd_sigma: float | None = None  # RBF bandwidth; None = median-distance heuristic
+
+
+# Encoder/decoder shapes by size name. Decoder widths follow MAE's asymmetric
+# design (decoder much lighter than encoder — it is discarded at Phase-2 handoff,
+# so capacity spent there is capacity not spent on the backbone).
+SIZE_PRESETS: dict[str, dict[str, int]] = {
+    "small": dict(
+        embed_dim=384, depth=12, num_heads=6,
+        decoder_embed_dim=256, decoder_depth=4, decoder_num_heads=8,
+    ),
+    "base": dict(
+        embed_dim=768, depth=12, num_heads=12,
+        decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
+    ),
+    "large": dict(
+        embed_dim=1024, depth=24, num_heads=16,
+        decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
+    ),
+}
+
+
+def config_for_size(
+    size: str, in_channels: int = 3, img_size: int = 224, **overrides
+) -> MAEConfig:
+    """Build an MAEConfig from a size name in ``SIZE_PRESETS`` plus overrides."""
+    if size not in SIZE_PRESETS:
+        raise ValueError(f"unknown size {size!r}; choose from {sorted(SIZE_PRESETS)}")
+    return MAEConfig(
+        img_size=img_size, in_channels=in_channels,
+        **SIZE_PRESETS[size], **overrides,
+    )
 
 
 class MAEPretrainer(nn.Module):
@@ -352,9 +437,15 @@ class MAEPretrainer(nn.Module):
     # -- random masking ---------------------------------------------------- #
     @staticmethod
     def random_masking(
-        tokens: torch.Tensor, mask_ratio: float
+        tokens: torch.Tensor,
+        mask_ratio: float,
+        generator: torch.Generator | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Per-sample random masking by shuffling.
+
+        Pass ``generator`` to draw the mask from a private RNG stream — used by
+        evaluation so the val mask is identical at every checkpoint (otherwise
+        val loss carries mask noise and can't be compared across steps).
 
         Returns:
             kept:        (B, num_keep, D) visible tokens
@@ -364,7 +455,7 @@ class MAEPretrainer(nn.Module):
         b, n, d = tokens.shape
         num_keep = max(1, int(round(n * (1.0 - mask_ratio))))
 
-        noise = torch.rand(b, n, device=tokens.device)
+        noise = torch.rand(b, n, device=tokens.device, generator=generator)
         ids_shuffle = torch.argsort(noise, dim=1)  # ascending noise
         ids_restore = torch.argsort(ids_shuffle, dim=1)
 
@@ -382,35 +473,88 @@ class MAEPretrainer(nn.Module):
     def reconstruction_loss(
         self, imgs: torch.Tensor, pred: torch.Tensor, mask: torch.Tensor
     ) -> torch.Tensor:
-        """Mean squared error over masked patches only."""
+        """Per-patch reconstruction error over masked patches only.
+
+        The objective is selectable via ``config.recon_loss``:
+            - "l2":         MSE — mean-seeking, smooth/blurry reconstructions.
+            - "l1":         mean absolute error — sharper, less mean-seeking.
+            - "charbonnier": smooth-L1 (sqrt(diff**2 + eps)) — L1-like but
+                             differentiable at zero, a common deblur choice.
+        """
         target = self.patchify(imgs)
         if self.config.norm_pix_loss:
             mean = target.mean(dim=-1, keepdim=True)
             var = target.var(dim=-1, keepdim=True)
             target = (target - mean) / (var + 1e-6) ** 0.5
 
-        loss = (pred - target).pow(2).mean(dim=-1)  # (B, num_patches)
+        diff = pred - target
+        if self.config.recon_loss == "l1":
+            per_elem = diff.abs()
+        elif self.config.recon_loss == "charbonnier":
+            per_elem = (diff.pow(2) + 1e-6).sqrt()
+        elif self.config.recon_loss == "l2":
+            per_elem = diff.pow(2)
+        else:
+            raise ValueError(f"unknown recon_loss {self.config.recon_loss!r}")
+
+        loss = per_elem.mean(dim=-1)  # (B, num_patches)
         # Average over masked patches only (mask sums to the masked count).
         return (loss * mask).sum() / mask.sum().clamp_min(1.0)
 
+    # -- CMMD-style embedding-space term ------------------------------------ #
+    def cmmd_loss(
+        self, imgs: torch.Tensor, pred: torch.Tensor, mask: torch.Tensor
+    ) -> torch.Tensor:
+        """MMD between encoder embeddings of the real tile and the
+        masked-patch reconstruction (visible patches copied from the real
+        image, masked patches from ``pred`` — same compositing rule used for
+        the qualitative grids in ``visualize_mae.py``).
+        """
+        target = self.patchify(imgs)
+        pred_pixels = pred
+        if self.config.norm_pix_loss:
+            mean = target.mean(dim=-1, keepdim=True)
+            std = (target.var(dim=-1, keepdim=True) + 1e-6) ** 0.5
+            pred_pixels = pred * std + mean  # invert norm_pix_loss normalization
+
+        mask_exp = mask.unsqueeze(-1)
+        recon_patches = mask_exp * pred_pixels + (1 - mask_exp) * target
+        recon_imgs = self.unpatchify(recon_patches)
+
+        real_embed = self.encoder(imgs).mean(dim=1)  # (B, embed_dim), CLS dropped
+        fake_embed = self.encoder(recon_imgs).mean(dim=1)
+        return gaussian_mmd2(fake_embed, real_embed, sigma=self.config.cmmd_sigma)
+
     # -- forward ----------------------------------------------------------- #
     def forward(
-        self, imgs: torch.Tensor
+        self, imgs: torch.Tensor, generator: torch.Generator | None = None
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Run one MAE step.
 
+        Args:
+            imgs: (B, C, H, W) input batch
+            generator: optional private RNG for the mask (see ``random_masking``)
+
         Returns:
-            loss: scalar reconstruction loss
+            loss: scalar total loss (reconstruction, plus CMMD term if
+                  ``config.cmmd_weight > 0`` — see ``self.last_cmmd_loss``
+                  for the unweighted component, useful for logging)
             pred: (B, num_patches, patch_dim) predicted pixels
             mask: (B, num_patches) which patches were reconstruction targets
         """
         tokens = self.encoder.embed_patches(imgs)  # pos-embedded, no CLS
         kept, mask, ids_restore = self.random_masking(
-            tokens, self.config.mask_ratio
+            tokens, self.config.mask_ratio, generator=generator
         )
         latent = self.encoder.forward_tokens(kept)  # includes CLS
         pred = self.decoder(latent, ids_restore)
         loss = self.reconstruction_loss(imgs, pred, mask)
+
+        self.last_cmmd_loss = None
+        if self.config.cmmd_weight > 0:
+            cmmd = self.cmmd_loss(imgs, pred, mask)
+            self.last_cmmd_loss = cmmd.detach()
+            loss = loss + self.config.cmmd_weight * cmmd
         return loss, pred, mask
 
     # -- handoff to Phase-2 ------------------------------------------------ #
@@ -422,6 +566,18 @@ class MAEPretrainer(nn.Module):
 # --------------------------------------------------------------------------- #
 # Preset factory functions
 # --------------------------------------------------------------------------- #
+def mae_vit_small(in_channels: int = 3, img_size: int = 224) -> MAEPretrainer:
+    """ViT-Small/16 MAE (~22M-param encoder) with a light 4-layer decoder.
+
+    The size to reach for on this project's data budget: SEN12MS-CR's spring
+    ROI is ~29K tiles, ~44x smaller than the ImageNet-1k corpus the Base recipe
+    is calibrated on. Small trains several times faster per step, so a given
+    wall-clock budget buys many more epochs — and an MAE's value here is a
+    well-converged encoder, not a large one.
+    """
+    return MAEPretrainer(config_for_size("small", in_channels, img_size))
+
+
 def mae_vit_base(in_channels: int = 3, img_size: int = 224) -> MAEPretrainer:
     """ViT-Base/16 MAE (86M-param encoder)."""
     return MAEPretrainer(

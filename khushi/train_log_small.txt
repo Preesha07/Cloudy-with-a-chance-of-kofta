@@ -1,0 +1,5 @@
+device=cuda
+tiles=27661  val_tiles=1456  micro-batches/epoch=216  opt-steps/epoch=54
+eff_batch=512 (batch 128 x accum 4)  base_lr=3.00e-04  muon_lr=4.00e-02 (muon=True)  warmup=54  total_steps=43200  recon=l1  norm_pix_loss=True  cmmd_weight=0.0  augment=True  normalize=True
+model_size=small  encoder=21.6M  decoder=3.5M  mask_ratio=0.75
+muon params=24.4M  adamw params=0.7M

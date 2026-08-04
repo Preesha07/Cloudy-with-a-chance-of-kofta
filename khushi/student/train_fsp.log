@@ -1,0 +1,441 @@
+/workspace/Cloudy-with-a-chance-of-kofta/khushi/student/models/pix2pix_attn_student_fsp_model.py:260: UserWarning: The torch.cuda.*DtypeTensor constructors are no longer recommended. It's best to use methods such as torch.tensor(data, dtype=*, device='cuda') to create tensors. (Triggered internally at ../torch/csrc/tensor/python_tensor.cpp:78.)
+  self.zeros = self.Tensor(nb, 1, size, size)
+/workspace/Cloudy-with-a-chance-of-kofta/khushi/student/models/networks.py:33: FutureWarning: `nn.init.xavier_normal` is now deprecated in favor of `nn.init.xavier_normal_`.
+  init.xavier_normal(m.weight.data, gain=1)
+/workspace/Cloudy-with-a-chance-of-kofta/khushi/student/models/pix2pix_attn_student_fsp_model.py:417: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  network.load_state_dict(torch.load(path), strict=False)
+------------ Options -------------
+A_cats: horse
+B_cats: zebra
+attn_cycle_weight: 1.0
+batchSize: 1
+beta1: 0.5
+checkpoints_dir: ./outputs/checkpoints
+continue_train: False
+cross_depth_weight: 8.0
+dataType: val2017
+dataroot: /workspace/Cloudy-with-a-chance-of-kofta/SEN12MSCR_student
+dataset_mode: unaligned_sar
+display_freq: 500
+display_id: 0
+display_port: 8097
+display_single_pane_ncols: 0
+display_winsize: 256
+dist_act: none
+dist_beta: 2.0
+dist_eps: 1e-08
+dist_gamma: 2.0
+dist_intra_min_positions: 16
+epoch_count: 1
+fineSize: 256
+fsp_distance: pearson
+fsp_eps: 1e-06
+fsp_min_positions: 0
+fsp_pairs: adjacent
+gamma_hall: 100.0
+gpu_ids: [0]
+hook_layers: 3,4,5,6,7
+identity: 0.0
+init_type: xavier
+input_nc: 3
+isTrain: True
+lambda3: 1.0
+lambda_A: 10.0
+lambda_B: 10.0
+loadSize: 256
+loss_attn_A: 1.0
+loss_attn_B: 1.0
+loss_weight: None
+lr: 0.0002
+lr_decay_iters: 100
+lr_policy: lambda
+max_dataset_size: inf
+model: pix2pix_attn_student_fsp
+nThreads: 0
+n_layers_D: 3
+name: sen12mscr_student_fsp_v1
+ndf: 64
+ngf: 64
+niter: 15
+niter_decay: 15
+no_dropout: True
+no_flip: True
+no_html: True
+no_lsgan: False
+norm: instance
+output_nc: 3
+phase: train
+pool_size: 50
+print_freq: 100
+resize_or_crop: resize_and_crop
+save_epoch_freq: 5
+save_latest_freq: 5000
+serial_batches: False
+teacher_checkpoints_dir: ./outputs/checkpoints
+teacher_name: sen12mscr_teacher_v1
+teacher_which_epoch: latest
+use_cross_depth: True
+use_dist: False
+use_hall: True
+which_direction: AtoB
+which_direction_model: AtoB
+which_epoch: latest
+which_model_netA: unet_256
+which_model_netD: basic
+which_model_netG: unet_256
+which_model_netG2: unet_256
+-------------- End ----------------
+CustomDatasetDataLoader
+dataset [UnalignedDataset_sar] was created
+#training images = 9127
+pix2pix_attn_student_fsp
+initialization method [xavier]
+initialization method [xavier]
+initialization method [xavier]
+initialization method [xavier]
+initialization method [xavier]
+Loading G   from ./outputs/checkpoints/sen12mscr_teacher_v1/latest_net_G.pth
+Loading A   from ./outputs/checkpoints/sen12mscr_teacher_v1/latest_net_A.pth
+Loading G2  from ./outputs/checkpoints/sen12mscr_teacher_v1/latest_net_G2.pth
+Loading D   from ./outputs/checkpoints/sen12mscr_teacher_v1/latest_net_D.pth
+Re-initialized netH first conv: Conv2d(3, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+Hook layers (0=outermost): [3, 4, 5, 6, 7]
+DIST: beta(inter)=2  gamma(intra)=2  act=none  intra_min_positions=16
+DIST: gamma_hall=100 (Hoffman exact-match term; 0 = pure DIST)
+Terms enabled: hall=True  dist=False  cross_depth=True
+FSP: pairs=[(3, 4), (4, 5), (5, 6), (6, 7)] (adjacent)  distance=pearson  weight=8  min_positions=0
+---------- Student (DIST) networks initialized -------------
+UnetGenerator(
+  (model): UnetSkipConnectionBlock(
+    (model): Sequential(
+      (0): Conv2d(6, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+      (1): UnetSkipConnectionBlock(
+        (model): Sequential(
+          (0): LeakyReLU(negative_slope=0.2, inplace=True)
+          (1): Conv2d(64, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+          (2): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+          (3): UnetSkipConnectionBlock(
+            (model): Sequential(
+              (0): LeakyReLU(negative_slope=0.2, inplace=True)
+              (1): Conv2d(128, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+              (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+              (3): UnetSkipConnectionBlock(
+                (model): Sequential(
+                  (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                  (1): Conv2d(256, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                  (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                  (3): UnetSkipConnectionBlock(
+                    (model): Sequential(
+                      (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                      (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                      (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                      (3): UnetSkipConnectionBlock(
+                        (model): Sequential(
+                          (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                          (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                          (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                          (3): UnetSkipConnectionBlock(
+                            (model): Sequential(
+                              (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                              (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                              (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                              (3): UnetSkipConnectionBlock(
+                                (model): Sequential(
+                                  (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                                  (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                  (2): ReLU(inplace=True)
+                                  (3): ConvTranspose2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                  (4): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                                )
+                              )
+                              (4): ReLU(inplace=True)
+                              (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                              (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                            )
+                          )
+                          (4): ReLU(inplace=True)
+                          (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                          (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                        )
+                      )
+                      (4): ReLU(inplace=True)
+                      (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                      (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                    )
+                  )
+                  (4): ReLU(inplace=True)
+                  (5): ConvTranspose2d(1024, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                  (6): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                )
+              )
+              (4): ReLU(inplace=True)
+              (5): ConvTranspose2d(512, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+              (6): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+            )
+          )
+          (4): ReLU(inplace=True)
+          (5): ConvTranspose2d(256, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+          (6): InstanceNorm2d(64, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+        )
+      )
+      (2): ReLU(inplace=True)
+      (3): ConvTranspose2d(128, 3, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+      (4): Tanh()
+    )
+  )
+)
+Total number of parameters: 54407171
+UnetGenerator(
+  (model): UnetSkipConnectionBlock(
+    (model): Sequential(
+      (0): Conv2d(3, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+      (1): UnetSkipConnectionBlock(
+        (model): Sequential(
+          (0): LeakyReLU(negative_slope=0.2, inplace=True)
+          (1): Conv2d(64, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+          (2): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+          (3): UnetSkipConnectionBlock(
+            (model): Sequential(
+              (0): LeakyReLU(negative_slope=0.2, inplace=True)
+              (1): Conv2d(128, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+              (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+              (3): UnetSkipConnectionBlock(
+                (model): Sequential(
+                  (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                  (1): Conv2d(256, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                  (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                  (3): UnetSkipConnectionBlock(
+                    (model): Sequential(
+                      (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                      (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                      (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                      (3): UnetSkipConnectionBlock(
+                        (model): Sequential(
+                          (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                          (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                          (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                          (3): UnetSkipConnectionBlock(
+                            (model): Sequential(
+                              (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                              (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                              (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                              (3): UnetSkipConnectionBlock(
+                                (model): Sequential(
+                                  (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                                  (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                  (2): ReLU(inplace=True)
+                                  (3): ConvTranspose2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                  (4): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                                )
+                              )
+                              (4): ReLU(inplace=True)
+                              (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                              (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                            )
+                          )
+                          (4): ReLU(inplace=True)
+                          (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                          (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                        )
+                      )
+                      (4): ReLU(inplace=True)
+                      (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                      (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                    )
+                  )
+                  (4): ReLU(inplace=True)
+                  (5): ConvTranspose2d(1024, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                  (6): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                )
+              )
+              (4): ReLU(inplace=True)
+              (5): ConvTranspose2d(512, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+              (6): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+            )
+          )
+          (4): ReLU(inplace=True)
+          (5): ConvTranspose2d(256, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+          (6): InstanceNorm2d(64, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+        )
+      )
+      (2): ReLU(inplace=True)
+      (3): ConvTranspose2d(128, 3, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+      (4): Tanh()
+    )
+  )
+)
+Total number of parameters: 54404099
+Sequential(
+  (0): UnetGenerator(
+    (model): UnetSkipConnectionBlock(
+      (model): Sequential(
+        (0): Conv2d(3, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+        (1): UnetSkipConnectionBlock(
+          (model): Sequential(
+            (0): LeakyReLU(negative_slope=0.2, inplace=True)
+            (1): Conv2d(64, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+            (2): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+            (3): UnetSkipConnectionBlock(
+              (model): Sequential(
+                (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                (1): Conv2d(128, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                (3): UnetSkipConnectionBlock(
+                  (model): Sequential(
+                    (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                    (1): Conv2d(256, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                    (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                    (3): UnetSkipConnectionBlock(
+                      (model): Sequential(
+                        (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                        (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                        (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                        (3): UnetSkipConnectionBlock(
+                          (model): Sequential(
+                            (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                            (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                            (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                            (3): UnetSkipConnectionBlock(
+                              (model): Sequential(
+                                (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                                (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                                (3): UnetSkipConnectionBlock(
+                                  (model): Sequential(
+                                    (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                                    (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                    (2): ReLU(inplace=True)
+                                    (3): ConvTranspose2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                    (4): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                                  )
+                                )
+                                (4): ReLU(inplace=True)
+                                (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                              )
+                            )
+                            (4): ReLU(inplace=True)
+                            (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                            (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                          )
+                        )
+                        (4): ReLU(inplace=True)
+                        (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                        (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                      )
+                    )
+                    (4): ReLU(inplace=True)
+                    (5): ConvTranspose2d(1024, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                    (6): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                  )
+                )
+                (4): ReLU(inplace=True)
+                (5): ConvTranspose2d(512, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                (6): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+              )
+            )
+            (4): ReLU(inplace=True)
+            (5): ConvTranspose2d(256, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+            (6): InstanceNorm2d(64, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+          )
+        )
+        (2): ReLU(inplace=True)
+        (3): ConvTranspose2d(128, 1, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+        (4): Tanh()
+      )
+    )
+  )
+  (1): Norm()
+)
+Total number of parameters: 54400001
+NLayerDiscriminator(
+  (model): Sequential(
+    (0): Conv2d(6, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (1): LeakyReLU(negative_slope=0.2, inplace=True)
+    (2): Conv2d(64, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (3): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+    (4): LeakyReLU(negative_slope=0.2, inplace=True)
+    (5): Conv2d(128, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (6): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+    (7): LeakyReLU(negative_slope=0.2, inplace=True)
+    (8): Conv2d(256, 512, kernel_size=(4, 4), stride=(1, 1), padding=(1, 1))
+    (9): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+    (10): LeakyReLU(negative_slope=0.2, inplace=True)
+    (11): Conv2d(512, 1, kernel_size=(4, 4), stride=(1, 1), padding=(1, 1))
+  )
+)
+Total number of parameters: 2767809
+-----------------------------------------------
+model [Pix2Pix_attn_Student_FSP_Model] was created
+(epoch: 1, iters: 100, time: 0.033) G_GAN: 0.141 G_L1: 0.420 G_SSIM: 0.284 H_L1: 0.243 H_SSIM: 0.460 D_real: 0.262 D_fake: 0.517 att_A: 0.247 L_hall: 0.077 L_inter: 0.000 L_intra: 0.000 L_fsp: 1.102 fsp_3_4: 0.167 fsp_4_5: 0.268 fsp_5_6: 0.355 fsp_6_7: 0.312 
+(epoch: 1, iters: 200, time: 0.034) G_GAN: 0.180 G_L1: 0.422 G_SSIM: 0.175 H_L1: 0.300 H_SSIM: 0.616 D_real: 0.217 D_fake: 0.027 att_A: 0.248 L_hall: 0.079 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.796 fsp_3_4: 0.117 fsp_4_5: 0.227 fsp_5_6: 0.187 fsp_6_7: 0.265 
+(epoch: 1, iters: 300, time: 0.036) G_GAN: 0.597 G_L1: 0.712 G_SSIM: 0.388 H_L1: 0.272 H_SSIM: 0.589 D_real: 0.150 D_fake: 0.021 att_A: 0.596 L_hall: 0.076 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.857 fsp_3_4: 0.131 fsp_4_5: 0.194 fsp_5_6: 0.200 fsp_6_7: 0.331 
+(epoch: 1, iters: 400, time: 0.038) G_GAN: 0.495 G_L1: 0.684 G_SSIM: 0.486 H_L1: 0.248 H_SSIM: 0.539 D_real: 0.088 D_fake: 0.150 att_A: 0.638 L_hall: 0.078 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.795 fsp_3_4: 0.126 fsp_4_5: 0.217 fsp_5_6: 0.225 fsp_6_7: 0.228 
+(epoch: 1, iters: 500, time: 0.073) G_GAN: 0.069 G_L1: 0.510 G_SSIM: 0.301 H_L1: 0.244 H_SSIM: 0.448 D_real: 0.122 D_fake: 0.021 att_A: 0.315 L_hall: 0.063 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.801 fsp_3_4: 0.168 fsp_4_5: 0.190 fsp_5_6: 0.181 fsp_6_7: 0.262 
+(epoch: 1, iters: 600, time: 0.034) G_GAN: 1.136 G_L1: 0.948 G_SSIM: 0.116 H_L1: 0.205 H_SSIM: 0.473 D_real: 0.658 D_fake: 0.046 att_A: 0.199 L_hall: 0.068 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.689 fsp_3_4: 0.218 fsp_4_5: 0.188 fsp_5_6: 0.194 fsp_6_7: 0.088 
+(epoch: 1, iters: 700, time: 0.035) G_GAN: 0.171 G_L1: 0.157 G_SSIM: 0.026 H_L1: 0.138 H_SSIM: 0.332 D_real: 0.019 D_fake: 0.046 att_A: 0.316 L_hall: 0.069 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.837 fsp_3_4: 0.151 fsp_4_5: 0.156 fsp_5_6: 0.169 fsp_6_7: 0.361 
+(epoch: 1, iters: 800, time: 0.034) G_GAN: 1.263 G_L1: 0.395 G_SSIM: 0.213 H_L1: 0.246 H_SSIM: 0.502 D_real: 0.134 D_fake: 0.026 att_A: 0.685 L_hall: 0.080 L_inter: 0.000 L_intra: 0.000 L_fsp: 1.081 fsp_3_4: 0.258 fsp_4_5: 0.231 fsp_5_6: 0.230 fsp_6_7: 0.362 
+(epoch: 1, iters: 900, time: 0.033) G_GAN: 1.380 G_L1: 0.540 G_SSIM: 0.402 H_L1: 0.241 H_SSIM: 0.539 D_real: 0.096 D_fake: 0.043 att_A: 0.857 L_hall: 0.078 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.703 fsp_3_4: 0.166 fsp_4_5: 0.223 fsp_5_6: 0.171 fsp_6_7: 0.143 
+(epoch: 1, iters: 1000, time: 0.056) G_GAN: 0.812 G_L1: 0.550 G_SSIM: 0.477 H_L1: 0.271 H_SSIM: 0.536 D_real: 0.229 D_fake: 0.388 att_A: 0.491 L_hall: 0.070 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.749 fsp_3_4: 0.154 fsp_4_5: 0.210 fsp_5_6: 0.236 fsp_6_7: 0.150 
+(epoch: 1, iters: 1100, time: 0.035) G_GAN: 0.762 G_L1: 0.318 G_SSIM: 0.166 H_L1: 0.275 H_SSIM: 0.512 D_real: 0.257 D_fake: 0.031 att_A: 0.289 L_hall: 0.064 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.659 fsp_3_4: 0.111 fsp_4_5: 0.153 fsp_5_6: 0.200 fsp_6_7: 0.194 
+(epoch: 1, iters: 1200, time: 0.034) G_GAN: 0.829 G_L1: 0.640 G_SSIM: 0.183 H_L1: 0.261 H_SSIM: 0.484 D_real: 0.157 D_fake: 0.170 att_A: 0.434 L_hall: 0.062 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.603 fsp_3_4: 0.114 fsp_4_5: 0.143 fsp_5_6: 0.224 fsp_6_7: 0.121 
+(epoch: 1, iters: 1300, time: 0.034) G_GAN: 0.971 G_L1: 1.428 G_SSIM: 0.364 H_L1: 0.252 H_SSIM: 0.411 D_real: 0.023 D_fake: 0.045 att_A: 0.663 L_hall: 0.079 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.851 fsp_3_4: 0.180 fsp_4_5: 0.229 fsp_5_6: 0.223 fsp_6_7: 0.219 
+(epoch: 1, iters: 1400, time: 0.035) G_GAN: 0.772 G_L1: 0.669 G_SSIM: 0.166 H_L1: 0.169 H_SSIM: 0.357 D_real: 0.342 D_fake: 0.025 att_A: 0.621 L_hall: 0.079 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.695 fsp_3_4: 0.161 fsp_4_5: 0.193 fsp_5_6: 0.186 fsp_6_7: 0.154 
+(epoch: 1, iters: 1500, time: 0.054) G_GAN: 1.798 G_L1: 0.415 G_SSIM: 0.040 H_L1: 0.145 H_SSIM: 0.320 D_real: 0.587 D_fake: 0.144 att_A: 0.493 L_hall: 0.073 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.768 fsp_3_4: 0.169 fsp_4_5: 0.158 fsp_5_6: 0.284 fsp_6_7: 0.157 
+(epoch: 1, iters: 1600, time: 0.035) G_GAN: 1.339 G_L1: 0.446 G_SSIM: 0.282 H_L1: 0.250 H_SSIM: 0.538 D_real: 0.023 D_fake: 0.061 att_A: 0.608 L_hall: 0.075 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.903 fsp_3_4: 0.149 fsp_4_5: 0.242 fsp_5_6: 0.261 fsp_6_7: 0.251 
+(epoch: 1, iters: 1700, time: 0.034) G_GAN: 0.974 G_L1: 0.552 G_SSIM: 0.228 H_L1: 0.225 H_SSIM: 0.454 D_real: 0.054 D_fake: 0.032 att_A: 0.639 L_hall: 0.077 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.610 fsp_3_4: 0.141 fsp_4_5: 0.191 fsp_5_6: 0.184 fsp_6_7: 0.094 
+(epoch: 1, iters: 1800, time: 0.033) G_GAN: 0.739 G_L1: 0.418 G_SSIM: 0.282 H_L1: 0.234 H_SSIM: 0.423 D_real: 0.108 D_fake: 0.114 att_A: 0.575 L_hall: 0.064 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.791 fsp_3_4: 0.153 fsp_4_5: 0.172 fsp_5_6: 0.160 fsp_6_7: 0.305 
+(epoch: 1, iters: 1900, time: 0.034) G_GAN: 1.239 G_L1: 1.041 G_SSIM: 0.511 H_L1: 0.339 H_SSIM: 0.645 D_real: 0.097 D_fake: 0.028 att_A: 0.866 L_hall: 0.078 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.839 fsp_3_4: 0.135 fsp_4_5: 0.202 fsp_5_6: 0.291 fsp_6_7: 0.211 
+(epoch: 1, iters: 2000, time: 0.053) G_GAN: 0.667 G_L1: 0.682 G_SSIM: 0.283 H_L1: 0.224 H_SSIM: 0.416 D_real: 0.088 D_fake: 0.261 att_A: 0.698 L_hall: 0.076 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.643 fsp_3_4: 0.134 fsp_4_5: 0.208 fsp_5_6: 0.164 fsp_6_7: 0.137 
+(epoch: 1, iters: 2100, time: 0.034) G_GAN: 1.171 G_L1: 0.926 G_SSIM: 0.324 H_L1: 0.265 H_SSIM: 0.412 D_real: 0.017 D_fake: 0.020 att_A: 0.691 L_hall: 0.075 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.705 fsp_3_4: 0.176 fsp_4_5: 0.215 fsp_5_6: 0.190 fsp_6_7: 0.125 
+(epoch: 1, iters: 2200, time: 0.034) G_GAN: 0.350 G_L1: 0.459 G_SSIM: 0.213 H_L1: 0.245 H_SSIM: 0.493 D_real: 0.023 D_fake: 0.189 att_A: 0.407 L_hall: 0.069 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.799 fsp_3_4: 0.148 fsp_4_5: 0.205 fsp_5_6: 0.207 fsp_6_7: 0.240 
+(epoch: 1, iters: 2300, time: 0.036) G_GAN: 0.736 G_L1: 0.489 G_SSIM: 0.353 H_L1: 0.265 H_SSIM: 0.669 D_real: 0.018 D_fake: 0.236 att_A: 0.554 L_hall: 0.068 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.763 fsp_3_4: 0.129 fsp_4_5: 0.183 fsp_5_6: 0.187 fsp_6_7: 0.264 
+(epoch: 1, iters: 2400, time: 0.034) G_GAN: 1.376 G_L1: 0.444 G_SSIM: 0.303 H_L1: 0.251 H_SSIM: 0.568 D_real: 0.010 D_fake: 0.027 att_A: 0.613 L_hall: 0.075 L_inter: 0.000 L_intra: 0.000 L_fsp: 1.041 fsp_3_4: 0.107 fsp_4_5: 0.170 fsp_5_6: 0.231 fsp_6_7: 0.534 
+(epoch: 1, iters: 2500, time: 0.056) G_GAN: 0.825 G_L1: 0.354 G_SSIM: 0.195 H_L1: 0.298 H_SSIM: 0.544 D_real: 0.158 D_fake: 0.073 att_A: 0.437 L_hall: 0.064 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.725 fsp_3_4: 0.110 fsp_4_5: 0.183 fsp_5_6: 0.169 fsp_6_7: 0.264 
+(epoch: 1, iters: 2600, time: 0.036) G_GAN: 0.885 G_L1: 0.553 G_SSIM: 0.256 H_L1: 0.205 H_SSIM: 0.430 D_real: 0.059 D_fake: 0.014 att_A: 0.671 L_hall: 0.071 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.719 fsp_3_4: 0.172 fsp_4_5: 0.194 fsp_5_6: 0.222 fsp_6_7: 0.132 
+(epoch: 1, iters: 2700, time: 0.034) G_GAN: 0.667 G_L1: 0.279 G_SSIM: 0.018 H_L1: 0.080 H_SSIM: 0.294 D_real: 0.284 D_fake: 0.021 att_A: 0.699 L_hall: 0.049 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.877 fsp_3_4: 0.153 fsp_4_5: 0.304 fsp_5_6: 0.281 fsp_6_7: 0.139 
+(epoch: 1, iters: 2800, time: 0.034) G_GAN: 0.420 G_L1: 1.128 G_SSIM: 0.217 H_L1: 0.118 H_SSIM: 0.347 D_real: 0.026 D_fake: 0.171 att_A: 0.488 L_hall: 0.074 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.645 fsp_3_4: 0.161 fsp_4_5: 0.178 fsp_5_6: 0.131 fsp_6_7: 0.174 
+(epoch: 1, iters: 2900, time: 0.033) G_GAN: 0.187 G_L1: 0.370 G_SSIM: 0.263 H_L1: 0.249 H_SSIM: 0.418 D_real: 0.039 D_fake: 0.034 att_A: 0.365 L_hall: 0.061 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.594 fsp_3_4: 0.130 fsp_4_5: 0.175 fsp_5_6: 0.153 fsp_6_7: 0.136 
+(epoch: 1, iters: 3000, time: 0.053) G_GAN: 0.150 G_L1: 0.404 G_SSIM: 0.138 H_L1: 0.269 H_SSIM: 0.450 D_real: 0.017 D_fake: 0.041 att_A: 0.414 L_hall: 0.064 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.729 fsp_3_4: 0.168 fsp_4_5: 0.204 fsp_5_6: 0.182 fsp_6_7: 0.176 
+(epoch: 1, iters: 3100, time: 0.034) G_GAN: 0.801 G_L1: 0.262 G_SSIM: 0.039 H_L1: 0.117 H_SSIM: 0.290 D_real: 0.027 D_fake: 0.021 att_A: 0.713 L_hall: 0.063 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.562 fsp_3_4: 0.144 fsp_4_5: 0.164 fsp_5_6: 0.135 fsp_6_7: 0.119 
+(epoch: 1, iters: 3200, time: 0.035) G_GAN: 1.200 G_L1: 0.456 G_SSIM: 0.292 H_L1: 0.189 H_SSIM: 0.392 D_real: 0.075 D_fake: 0.069 att_A: 0.873 L_hall: 0.076 L_inter: 0.000 L_intra: 0.000 L_fsp: 1.040 fsp_3_4: 0.292 fsp_4_5: 0.282 fsp_5_6: 0.274 fsp_6_7: 0.191 
+(epoch: 1, iters: 3300, time: 0.034) G_GAN: 0.342 G_L1: 0.375 G_SSIM: 0.114 H_L1: 0.151 H_SSIM: 0.425 D_real: 0.057 D_fake: 0.153 att_A: 0.462 L_hall: 0.055 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.765 fsp_3_4: 0.200 fsp_4_5: 0.155 fsp_5_6: 0.140 fsp_6_7: 0.271 
+(epoch: 1, iters: 3400, time: 0.034) G_GAN: 0.793 G_L1: 0.715 G_SSIM: 0.251 H_L1: 0.177 H_SSIM: 0.403 D_real: 0.052 D_fake: 0.014 att_A: 0.530 L_hall: 0.075 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.867 fsp_3_4: 0.194 fsp_4_5: 0.284 fsp_5_6: 0.228 fsp_6_7: 0.162 
+(epoch: 1, iters: 3500, time: 0.055) G_GAN: 1.578 G_L1: 0.577 G_SSIM: 0.303 H_L1: 0.268 H_SSIM: 0.519 D_real: 0.073 D_fake: 0.209 att_A: 0.541 L_hall: 0.070 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.940 fsp_3_4: 0.203 fsp_4_5: 0.222 fsp_5_6: 0.264 fsp_6_7: 0.252 
+(epoch: 1, iters: 3600, time: 0.035) G_GAN: 0.458 G_L1: 0.304 G_SSIM: 0.099 H_L1: 0.172 H_SSIM: 0.389 D_real: 0.091 D_fake: 0.120 att_A: 0.521 L_hall: 0.048 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.640 fsp_3_4: 0.191 fsp_4_5: 0.198 fsp_5_6: 0.124 fsp_6_7: 0.127 
+(epoch: 1, iters: 3700, time: 0.034) G_GAN: 1.364 G_L1: 0.345 G_SSIM: 0.136 H_L1: 0.200 H_SSIM: 0.364 D_real: 0.759 D_fake: 0.050 att_A: 0.473 L_hall: 0.058 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.720 fsp_3_4: 0.150 fsp_4_5: 0.181 fsp_5_6: 0.175 fsp_6_7: 0.213 
+(epoch: 1, iters: 3800, time: 0.034) G_GAN: 1.168 G_L1: 0.881 G_SSIM: 0.588 H_L1: 0.283 H_SSIM: 0.664 D_real: 0.014 D_fake: 0.011 att_A: 0.943 L_hall: 0.080 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.697 fsp_3_4: 0.137 fsp_4_5: 0.184 fsp_5_6: 0.158 fsp_6_7: 0.218 
+(epoch: 1, iters: 3900, time: 0.033) G_GAN: 0.940 G_L1: 0.576 G_SSIM: 0.432 H_L1: 0.256 H_SSIM: 0.534 D_real: 0.063 D_fake: 0.009 att_A: 0.857 L_hall: 0.076 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.751 fsp_3_4: 0.140 fsp_4_5: 0.165 fsp_5_6: 0.271 fsp_6_7: 0.175 
+(epoch: 1, iters: 4000, time: 0.055) G_GAN: 1.054 G_L1: 0.415 G_SSIM: 0.238 H_L1: 0.244 H_SSIM: 0.505 D_real: 0.085 D_fake: 0.039 att_A: 0.648 L_hall: 0.059 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.703 fsp_3_4: 0.133 fsp_4_5: 0.160 fsp_5_6: 0.188 fsp_6_7: 0.222 
+(epoch: 1, iters: 4100, time: 0.034) G_GAN: 0.921 G_L1: 0.884 G_SSIM: 0.190 H_L1: 0.127 H_SSIM: 0.362 D_real: 0.013 D_fake: 0.014 att_A: 0.543 L_hall: 0.069 L_inter: 0.000 L_intra: 0.000 L_fsp: 1.086 fsp_3_4: 0.148 fsp_4_5: 0.185 fsp_5_6: 0.296 fsp_6_7: 0.457 
+(epoch: 1, iters: 4200, time: 0.035) G_GAN: 0.932 G_L1: 0.383 G_SSIM: 0.289 H_L1: 0.227 H_SSIM: 0.430 D_real: 0.064 D_fake: 0.219 att_A: 0.898 L_hall: 0.081 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.958 fsp_3_4: 0.173 fsp_4_5: 0.215 fsp_5_6: 0.292 fsp_6_7: 0.278 
+(epoch: 1, iters: 4300, time: 0.035) G_GAN: 0.871 G_L1: 0.685 G_SSIM: 0.223 H_L1: 0.186 H_SSIM: 0.425 D_real: 0.011 D_fake: 0.015 att_A: 0.503 L_hall: 0.059 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.508 fsp_3_4: 0.131 fsp_4_5: 0.129 fsp_5_6: 0.141 fsp_6_7: 0.107 
+(epoch: 1, iters: 4400, time: 0.035) G_GAN: 1.142 G_L1: 0.921 G_SSIM: 0.339 H_L1: 0.271 H_SSIM: 0.404 D_real: 0.007 D_fake: 0.017 att_A: 0.672 L_hall: 0.074 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.709 fsp_3_4: 0.224 fsp_4_5: 0.173 fsp_5_6: 0.156 fsp_6_7: 0.157 
+(epoch: 1, iters: 4500, time: 0.050) G_GAN: 1.170 G_L1: 0.576 G_SSIM: 0.168 H_L1: 0.165 H_SSIM: 0.308 D_real: 0.125 D_fake: 0.020 att_A: 0.607 L_hall: 0.067 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.615 fsp_3_4: 0.202 fsp_4_5: 0.163 fsp_5_6: 0.160 fsp_6_7: 0.090 
+(epoch: 1, iters: 4600, time: 0.034) G_GAN: 1.585 G_L1: 0.367 G_SSIM: 0.212 H_L1: 0.324 H_SSIM: 0.564 D_real: 0.079 D_fake: 0.031 att_A: 0.550 L_hall: 0.057 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.643 fsp_3_4: 0.152 fsp_4_5: 0.218 fsp_5_6: 0.155 fsp_6_7: 0.118 
+(epoch: 1, iters: 4700, time: 0.034) G_GAN: 0.142 G_L1: 0.784 G_SSIM: 0.309 H_L1: 0.320 H_SSIM: 0.469 D_real: 0.033 D_fake: 0.010 att_A: 0.313 L_hall: 0.068 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.725 fsp_3_4: 0.175 fsp_4_5: 0.210 fsp_5_6: 0.217 fsp_6_7: 0.123 
+(epoch: 1, iters: 4800, time: 0.034) G_GAN: 0.457 G_L1: 0.320 G_SSIM: 0.218 H_L1: 0.253 H_SSIM: 0.501 D_real: 0.012 D_fake: 0.117 att_A: 0.452 L_hall: 0.066 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.738 fsp_3_4: 0.153 fsp_4_5: 0.185 fsp_5_6: 0.201 fsp_6_7: 0.199 
+(epoch: 1, iters: 4900, time: 0.035) G_GAN: 0.693 G_L1: 0.520 G_SSIM: 0.254 H_L1: 0.268 H_SSIM: 0.508 D_real: 0.014 D_fake: 0.041 att_A: 0.550 L_hall: 0.070 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.702 fsp_3_4: 0.161 fsp_4_5: 0.163 fsp_5_6: 0.169 fsp_6_7: 0.209 
+(epoch: 1, iters: 5000, time: 0.056) G_GAN: 0.094 G_L1: 0.040 G_SSIM: 0.005 H_L1: 0.075 H_SSIM: 0.062 D_real: 0.017 D_fake: 0.030 att_A: 0.625 L_hall: 0.066 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.853 fsp_3_4: 0.153 fsp_4_5: 0.209 fsp_5_6: 0.210 fsp_6_7: 0.281 
+saving the latest model (epoch 1, total_steps 5000)
+(epoch: 1, iters: 5100, time: 0.035) G_GAN: 1.146 G_L1: 0.480 G_SSIM: 0.313 H_L1: 0.293 H_SSIM: 0.556 D_real: 0.057 D_fake: 0.010 att_A: 0.673 L_hall: 0.065 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.790 fsp_3_4: 0.147 fsp_4_5: 0.150 fsp_5_6: 0.195 fsp_6_7: 0.298 
+(epoch: 1, iters: 5200, time: 0.035) G_GAN: 1.110 G_L1: 0.583 G_SSIM: 0.366 H_L1: 0.283 H_SSIM: 0.586 D_real: 0.011 D_fake: 0.316 att_A: 0.644 L_hall: 0.067 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.832 fsp_3_4: 0.150 fsp_4_5: 0.175 fsp_5_6: 0.220 fsp_6_7: 0.287 
+(epoch: 1, iters: 5300, time: 0.036) G_GAN: 0.208 G_L1: 0.566 G_SSIM: 0.263 H_L1: 0.257 H_SSIM: 0.398 D_real: 0.019 D_fake: 0.020 att_A: 0.452 L_hall: 0.067 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.695 fsp_3_4: 0.090 fsp_4_5: 0.143 fsp_5_6: 0.181 fsp_6_7: 0.281 
+(epoch: 1, iters: 5400, time: 0.034) G_GAN: 0.455 G_L1: 0.335 G_SSIM: 0.129 H_L1: 0.184 H_SSIM: 0.297 D_real: 0.128 D_fake: 0.012 att_A: 0.519 L_hall: 0.068 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.587 fsp_3_4: 0.114 fsp_4_5: 0.159 fsp_5_6: 0.129 fsp_6_7: 0.184 
+(epoch: 1, iters: 5500, time: 0.051) G_GAN: 0.689 G_L1: 0.680 G_SSIM: 0.262 H_L1: 0.249 H_SSIM: 0.450 D_real: 0.011 D_fake: 0.048 att_A: 0.621 L_hall: 0.063 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.821 fsp_3_4: 0.133 fsp_4_5: 0.173 fsp_5_6: 0.277 fsp_6_7: 0.238 
+(epoch: 1, iters: 5600, time: 0.034) G_GAN: 1.170 G_L1: 0.621 G_SSIM: 0.145 H_L1: 0.170 H_SSIM: 0.305 D_real: 0.238 D_fake: 0.031 att_A: 0.860 L_hall: 0.074 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.725 fsp_3_4: 0.128 fsp_4_5: 0.160 fsp_5_6: 0.230 fsp_6_7: 0.208 
+(epoch: 1, iters: 5700, time: 0.035) G_GAN: 0.161 G_L1: 0.104 G_SSIM: 0.007 H_L1: 0.080 H_SSIM: 0.109 D_real: 0.023 D_fake: 0.387 att_A: 0.381 L_hall: 0.060 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.696 fsp_3_4: 0.084 fsp_4_5: 0.156 fsp_5_6: 0.195 fsp_6_7: 0.261 
+(epoch: 1, iters: 5800, time: 0.037) G_GAN: 1.162 G_L1: 0.826 G_SSIM: 0.297 H_L1: 0.178 H_SSIM: 0.416 D_real: 0.028 D_fake: 0.013 att_A: 0.875 L_hall: 0.070 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.834 fsp_3_4: 0.214 fsp_4_5: 0.207 fsp_5_6: 0.193 fsp_6_7: 0.221 
+(epoch: 1, iters: 5900, time: 0.089) G_GAN: 0.502 G_L1: 0.312 G_SSIM: 0.118 H_L1: 0.352 H_SSIM: 0.581 D_real: 0.390 D_fake: 0.084 att_A: 0.269 L_hall: 0.065 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.762 fsp_3_4: 0.128 fsp_4_5: 0.178 fsp_5_6: 0.213 fsp_6_7: 0.244 
+(epoch: 1, iters: 6000, time: 0.058) G_GAN: 0.452 G_L1: 0.465 G_SSIM: 0.156 H_L1: 0.280 H_SSIM: 0.369 D_real: 0.035 D_fake: 0.035 att_A: 0.613 L_hall: 0.074 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.889 fsp_3_4: 0.230 fsp_4_5: 0.178 fsp_5_6: 0.191 fsp_6_7: 0.290 
+(epoch: 1, iters: 6100, time: 0.035) G_GAN: 0.112 G_L1: 0.187 G_SSIM: 0.057 H_L1: 0.292 H_SSIM: 0.504 D_real: 0.008 D_fake: 0.463 att_A: 0.347 L_hall: 0.070 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.810 fsp_3_4: 0.135 fsp_4_5: 0.183 fsp_5_6: 0.246 fsp_6_7: 0.246 
+(epoch: 1, iters: 6200, time: 0.034) G_GAN: 0.706 G_L1: 0.365 G_SSIM: 0.183 H_L1: 0.231 H_SSIM: 0.512 D_real: 0.013 D_fake: 0.038 att_A: 0.447 L_hall: 0.059 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.936 fsp_3_4: 0.138 fsp_4_5: 0.180 fsp_5_6: 0.231 fsp_6_7: 0.388 
+(epoch: 1, iters: 6300, time: 0.034) G_GAN: 1.356 G_L1: 0.435 G_SSIM: 0.309 H_L1: 0.245 H_SSIM: 0.510 D_real: 0.077 D_fake: 0.052 att_A: 0.614 L_hall: 0.061 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.685 fsp_3_4: 0.121 fsp_4_5: 0.135 fsp_5_6: 0.205 fsp_6_7: 0.224 
+(epoch: 1, iters: 6400, time: 0.035) G_GAN: 0.153 G_L1: 0.439 G_SSIM: 0.233 H_L1: 0.283 H_SSIM: 0.461 D_real: 0.044 D_fake: 0.392 att_A: 0.338 L_hall: 0.061 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.707 fsp_3_4: 0.115 fsp_4_5: 0.206 fsp_5_6: 0.197 fsp_6_7: 0.189 
+(epoch: 1, iters: 6500, time: 0.060) G_GAN: 1.097 G_L1: 0.353 G_SSIM: 0.253 H_L1: 0.252 H_SSIM: 0.415 D_real: 0.068 D_fake: 0.007 att_A: 0.756 L_hall: 0.069 L_inter: 0.000 L_intra: 0.000 L_fsp: 1.013 fsp_3_4: 0.235 fsp_4_5: 0.256 fsp_5_6: 0.161 fsp_6_7: 0.362 
+(epoch: 1, iters: 6600, time: 0.034) G_GAN: 1.150 G_L1: 0.701 G_SSIM: 0.241 H_L1: 0.271 H_SSIM: 0.367 D_real: 0.116 D_fake: 0.020 att_A: 0.716 L_hall: 0.072 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.702 fsp_3_4: 0.179 fsp_4_5: 0.184 fsp_5_6: 0.163 fsp_6_7: 0.176 
+(epoch: 1, iters: 6700, time: 0.034) G_GAN: 0.493 G_L1: 0.423 G_SSIM: 0.134 H_L1: 0.238 H_SSIM: 0.415 D_real: 0.118 D_fake: 0.030 att_A: 0.381 L_hall: 0.057 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.717 fsp_3_4: 0.177 fsp_4_5: 0.190 fsp_5_6: 0.191 fsp_6_7: 0.159 
+(epoch: 1, iters: 6800, time: 0.034) G_GAN: 0.229 G_L1: 0.516 G_SSIM: 0.464 H_L1: 0.274 H_SSIM: 0.565 D_real: 0.030 D_fake: 0.045 att_A: 0.487 L_hall: 0.062 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.791 fsp_3_4: 0.125 fsp_4_5: 0.173 fsp_5_6: 0.195 fsp_6_7: 0.298 
+(epoch: 1, iters: 6900, time: 0.034) G_GAN: 0.798 G_L1: 0.452 G_SSIM: 0.314 H_L1: 0.248 H_SSIM: 0.449 D_real: 0.015 D_fake: 0.366 att_A: 0.776 L_hall: 0.069 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.818 fsp_3_4: 0.173 fsp_4_5: 0.215 fsp_5_6: 0.205 fsp_6_7: 0.226 
+(epoch: 1, iters: 7000, time: 0.068) G_GAN: 1.025 G_L1: 0.635 G_SSIM: 0.359 H_L1: 0.245 H_SSIM: 0.546 D_real: 0.032 D_fake: 0.438 att_A: 0.673 L_hall: 0.065 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.668 fsp_3_4: 0.129 fsp_4_5: 0.181 fsp_5_6: 0.203 fsp_6_7: 0.155 
+(epoch: 1, iters: 7100, time: 0.035) G_GAN: 1.153 G_L1: 0.775 G_SSIM: 0.606 H_L1: 0.276 H_SSIM: 0.628 D_real: 0.011 D_fake: 0.016 att_A: 0.740 L_hall: 0.067 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.633 fsp_3_4: 0.129 fsp_4_5: 0.195 fsp_5_6: 0.171 fsp_6_7: 0.139 
