@@ -1,0 +1,602 @@
+<title>Feature Distillation Architecture — SAR-free Cloud Removal</title>
+
+<style>
+  :root {
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+
+    --ink:        #0c1a1e;
+    --ground:     #f3f6f4;
+    --surface:    #ffffff;
+    --surface-2:  #e9efec;
+    --line:       #cdd8d4;
+    --line-soft:  #dfe7e3;
+    --text:       #16262a;
+    --text-dim:   #5b6f72;
+    --text-faint: #85999a;
+
+    --teacher:    #b26a35;
+    --teacher-bg: #f7ede3;
+    --student:    #2b8494;
+    --student-bg: #e2f0f2;
+    --truth:      #6d8f3f;
+    --truth-bg:   #eaf1e0;
+    --dead:       #a33b3b;
+
+    --radius: 3px;
+    --gap: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground:     #0c1a1e;
+      --surface:    #12242a;
+      --surface-2:  #172d34;
+      --line:       #2b464e;
+      --line-soft:  #213b42;
+      --text:       #dde8e7;
+      --text-dim:   #8fa7a8;
+      --text-faint: #6b8385;
+
+      --teacher:    #d9975c;
+      --teacher-bg: #2a1f14;
+      --student:    #5cc0d0;
+      --student-bg: #122f36;
+      --truth:      #a3c46a;
+      --truth-bg:   #1e2a15;
+      --dead:       #d97070;
+    }
+  }
+
+  :root[data-theme="light"] {
+    --ground:     #f3f6f4;
+    --surface:    #ffffff;
+    --surface-2:  #e9efec;
+    --line:       #cdd8d4;
+    --line-soft:  #dfe7e3;
+    --text:       #16262a;
+    --text-dim:   #5b6f72;
+    --text-faint: #85999a;
+    --teacher:    #b26a35;
+    --teacher-bg: #f7ede3;
+    --student:    #2b8494;
+    --student-bg: #e2f0f2;
+    --truth:      #6d8f3f;
+    --truth-bg:   #eaf1e0;
+    --dead:       #a33b3b;
+  }
+
+  :root[data-theme="dark"] {
+    --ground:     #0c1a1e;
+    --surface:    #12242a;
+    --surface-2:  #172d34;
+    --line:       #2b464e;
+    --line-soft:  #213b42;
+    --text:       #dde8e7;
+    --text-dim:   #8fa7a8;
+    --text-faint: #6b8385;
+    --teacher:    #d9975c;
+    --teacher-bg: #2a1f14;
+    --student:    #5cc0d0;
+    --student-bg: #122f36;
+    --truth:      #a3c46a;
+    --truth-bg:   #1e2a15;
+    --dead:       #d97070;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+
+  /* ---------- type ---------- */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  h1 {
+    font-family: var(--mono);
+    font-size: clamp(1.5rem, 4vw, 2.1rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    text-wrap: balance;
+    margin: 0.6rem 0 0;
+  }
+  h2 {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin: 0;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .lede { color: var(--text-dim); max-width: 62ch; margin: 0.9rem 0 0; }
+  .note { color: var(--text-dim); max-width: 68ch; font-size: 0.9rem; margin: 0; }
+  code, .m { font-family: var(--mono); font-size: 0.86em; }
+  .sub { font-size: 0.72rem; color: var(--text-faint); font-family: var(--mono); }
+
+  section { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  /* ---------- facts strip ---------- */
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .fact { background: var(--surface); padding: 0.85rem 1rem; }
+  .fact dt {
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-faint);
+  }
+  .fact dd {
+    font-family: var(--mono); font-size: 1rem; margin: 0.3rem 0 0;
+    font-variant-numeric: tabular-nums; color: var(--text);
+  }
+
+  /* ---------- generic blocks ---------- */
+  .box {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0.75rem 0.9rem;
+  }
+  .box .name { font-family: var(--mono); font-size: 0.84rem; font-weight: 600; }
+  .box .shape {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim);
+    font-variant-numeric: tabular-nums; margin-top: 0.15rem;
+  }
+  .t-edge { border-left: 3px solid var(--teacher); }
+  .s-edge { border-left: 3px solid var(--student); }
+  .g-edge { border-left: 3px solid var(--truth); }
+
+  /* ---------- input row ---------- */
+  .inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.75rem; }
+  .inputs .box { display: flex; flex-direction: column; gap: 0.3rem; }
+  .tag {
+    display: inline-block; font-family: var(--mono); font-size: 0.6rem;
+    letter-spacing: 0.12em; text-transform: uppercase; padding: 0.14rem 0.4rem;
+    border-radius: 2px; align-self: flex-start;
+  }
+  .tag-t { background: var(--teacher-bg); color: var(--teacher); }
+  .tag-s { background: var(--student-bg); color: var(--student); }
+  .tag-g { background: var(--truth-bg);   color: var(--truth); }
+
+  /* ---------- towers ---------- */
+  .towers {
+    display: grid;
+    grid-template-columns: 1fr minmax(140px, 0.75fr) 1fr;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+  .col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .col-head {
+    font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.14em;
+    text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid;
+  }
+  .col-head.t { color: var(--teacher); border-color: var(--teacher); }
+  .col-head.s { color: var(--student); border-color: var(--student); }
+  .col-head.mid { color: var(--text-faint); border-color: var(--line); text-align: center; }
+
+  .net {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 0.7rem 0.85rem;
+    display: flex; flex-direction: column; gap: 0.2rem;
+  }
+  .net.t { border-left: 3px solid var(--teacher); }
+  .net.s { border-left: 3px solid var(--student); }
+  .net .n { font-family: var(--mono); font-weight: 600; font-size: 0.82rem; }
+  .net .io {
+    font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .net .why { font-size: 0.78rem; color: var(--text-dim); }
+
+  .bridge {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 0.35rem; text-align: center;
+    padding: 0.5rem 0.3rem; position: relative;
+  }
+  .bridge::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 50%;
+    border-top: 1px dashed var(--line); z-index: 0;
+  }
+  .chip {
+    position: relative; z-index: 1;
+    font-family: var(--mono); font-size: 0.66rem; font-weight: 600;
+    background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 999px; padding: 0.22rem 0.6rem; white-space: nowrap;
+  }
+  .chip.w { color: var(--text-dim); font-weight: 400; }
+
+  /* ---------- depth ladder ---------- */
+  .ladder { display: flex; flex-direction: column; gap: 0.5rem; }
+  .rung {
+    display: grid;
+    grid-template-columns: 1fr minmax(150px, 0.8fr) 1fr;
+    gap: 0.75rem; align-items: center;
+  }
+  .rung-head {
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-faint); text-align: center;
+  }
+  .feat {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 0.55rem 0.75rem;
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+  }
+  .feat .d { font-size: 0.62rem; color: var(--text-faint); letter-spacing: 0.1em; text-transform: uppercase; }
+  .feat .v { font-size: 0.86rem; margin-top: 0.1rem; }
+  .feat.t { border-left: 3px solid var(--teacher); }
+  .feat.s { border-left: 3px solid var(--student); }
+  .rung .bridge { padding: 0.2rem; }
+
+  /* ---------- tables ---------- */
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.85rem; }
+  th, td { text-align: left; padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--line-soft); }
+  th {
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--text-faint);
+    background: var(--surface-2); white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.m, th.m { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.w { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+  .grp {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--text-faint);
+    background: var(--surface-2);
+  }
+  .yes { color: var(--truth); font-weight: 600; }
+  .no  { color: var(--dead); font-weight: 600; }
+
+  .callout {
+    border: 1px solid var(--line); border-left: 3px solid var(--teacher);
+    background: var(--surface); border-radius: var(--radius);
+    padding: 0.9rem 1.1rem; display: flex; flex-direction: column; gap: 0.4rem;
+  }
+  .callout .h {
+    font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--teacher);
+  }
+  .callout p { margin: 0; font-size: 0.88rem; color: var(--text-dim); max-width: 70ch; }
+
+  footer {
+    border-top: 1px solid var(--line); padding-top: 1.25rem;
+    font-size: 0.8rem; color: var(--text-faint);
+  }
+
+  @media (max-width: 720px) {
+    .towers, .rung { grid-template-columns: 1fr; }
+    .bridge::before { display: none; }
+    .bridge { padding: 0.35rem 0; }
+    .rung-head:not(:first-child) { display: none; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Phase 2 · Knowledge Distillation</div>
+    <h1>Feature Distillation Architecture</h1>
+    <p class="lede">
+      Transferring radar-derived knowledge from a SAR + optical teacher into a student that
+      only ever sees a 3-band optical image — because LISS-4 carries no radar instrument.
+      All shapes below were probed from the live networks, not inferred.
+    </p>
+  </header>
+
+  <dl class="facts">
+    <div class="fact"><dt>Tile size</dt><dd>256 × 256</dd></div>
+    <div class="fact"><dt>Student input</dt><dd>3 ch</dd></div>
+    <div class="fact"><dt>Student output</dt><dd>3 ch</dd></div>
+    <div class="fact"><dt>Deployable params</dt><dd>108.8 M</dd></div>
+    <div class="fact"><dt>Tap points</dt><dd>5</dd></div>
+    <div class="fact"><dt>Radar at inference</dt><dd>none</dd></div>
+  </dl>
+
+  <!-- ============ INPUTS ============ -->
+  <section>
+    <h2>1 · Inputs per training sample</h2>
+    <p class="note">
+      Four tensors are read per tile, all <code>(B, 3, 256, 256)</code> in <code>[-1, 1]</code>.
+      The teacher and student are fed <em>different band stacks on purpose</em> — the teacher was
+      trained on true colour, the student must live in LISS-4's band space.
+    </p>
+    <div class="inputs">
+      <div class="box s-edge">
+        <span class="tag tag-s">→ student</span>
+        <span class="name">cloudy_optical</span>
+        <span class="shape">(B, 3, 256, 256)</span>
+        <span class="sub">G, R, NIR · S2 B3 B4 B8 · idx (2,3,7)</span>
+      </div>
+      <div class="box g-edge">
+        <span class="tag tag-g">→ target</span>
+        <span class="name">clear_optical</span>
+        <span class="shape">(B, 3, 256, 256)</span>
+        <span class="sub">G, R, NIR · ground truth</span>
+      </div>
+      <div class="box t-edge">
+        <span class="tag tag-t">→ teacher</span>
+        <span class="name">teacher_optical</span>
+        <span class="shape">(B, 3, 256, 256)</span>
+        <span class="sub">R, G, B · S2 B4 B3 B2 · idx (3,2,1)</span>
+      </div>
+      <div class="box t-edge">
+        <span class="tag tag-t">→ teacher</span>
+        <span class="name">sar</span>
+        <span class="shape">(B, 3, 256, 256)</span>
+        <span class="sub">VV, VH, VV−VH · dB clipped</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NETWORK LEVEL ============ -->
+  <section>
+    <h2>2 · Network-level dataflow</h2>
+    <p class="note">
+      The teacher is four networks, the student is three. Every network here is the same
+      <code>unet_256</code> backbone at <code>ngf=64</code>, differing only in input width — which is
+      exactly why their internals line up.
+    </p>
+
+    <div class="towers">
+      <div class="col">
+        <div class="col-head t">Teacher · frozen</div>
+
+        <div class="net t">
+          <span class="n">netA</span>
+          <span class="io">3 → 1 · 54.40 M</span>
+          <span class="why">Cloud detector. Optical only — carries no radar knowledge.</span>
+          <span class="sub">out att_A (B,1,256,256) ∈ [0,1]</span>
+        </div>
+
+        <div class="net t">
+          <span class="n">netG2</span>
+          <span class="io">3 → 3 · 54.40 M</span>
+          <span class="why">Radar translator. <strong>SAR only</strong> — the privileged pathway.</span>
+          <span class="sub">out fake_C (B,3,256,256)</span>
+        </div>
+
+        <div class="net t">
+          <span class="n">netG</span>
+          <span class="io">6 → 3 · 54.41 M</span>
+          <span class="why">Fusion. Input is optical ⊕ fake_C — where radar meets optical.</span>
+          <span class="sub">out g_B (B,3,256,256)</span>
+        </div>
+
+        <div class="box t-edge">
+          <span class="name">fake_B</span>
+          <span class="shape">g_B · att_A + real_A · (1 − att_A)</span>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-head mid">Comparison</div>
+        <div class="bridge"><span class="chip">L_attn</span><span class="chip w">w 2</span></div>
+        <div class="bridge"><span class="chip">L_sar</span><span class="chip w">w 1.0</span></div>
+        <div class="bridge"><span class="chip">L_feat</span><span class="chip w">w 1.0 / 0.3</span></div>
+        <div class="bridge"><span class="chip">L_out</span><span class="chip w">w 1 · ch R,G</span></div>
+      </div>
+
+      <div class="col">
+        <div class="col-head s">Student · learning</div>
+
+        <div class="net s">
+          <span class="n">netA_S</span>
+          <span class="io">3 → 1 · 54.40 M</span>
+          <span class="why">Mirrors netA exactly.</span>
+          <span class="sub">out I_M (B,1,256,256) ∈ [0,1]</span>
+        </div>
+
+        <div class="net s">
+          <span class="n">SAR heads ×5</span>
+          <span class="io">C_s → C_t · train only</span>
+          <span class="why">Predict netG2's features from optical. Discarded at inference.</span>
+          <span class="sub">Conv3×3 + IN + LReLU + Conv1×1</span>
+        </div>
+
+        <div class="net s">
+          <span class="n">netG_S</span>
+          <span class="io">3 → 3 · 54.40 M</span>
+          <span class="why">Twin of netG with 3 input channels instead of 6.</span>
+          <span class="sub">out G_S (B,3,256,256)</span>
+        </div>
+
+        <div class="box s-edge">
+          <span class="name">I_g</span>
+          <span class="shape">G_S · I_M + I_c · (1 − I_M)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="h">Why netG2 needs a head</span>
+      <p>
+        The student holds one feature per depth. Demanding it equal netG's fused feature
+        <em>and</em> netG2's pure-radar feature is contradictory — the trunk would split the
+        difference and learn neither. A prediction head changes the requirement from
+        “your feature must <em>be</em> the radar view” to “your feature must contain enough to
+        <em>derive</em> it”, which is the honest form of the claim and is learnable.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ DEPTH LADDER ============ -->
+  <section>
+    <h2>3 · Where features are compared</h2>
+    <p class="note">
+      Five tap points down the UNet. Shapes are <strong>identical</strong> on both sides — the only
+      architectural difference in the whole network is the outermost conv's input width
+      (6 vs 3), and its output is 64 × 128 × 128 either way. So no reshaping is needed anywhere.
+    </p>
+
+    <div class="ladder">
+      <div class="rung">
+        <div class="rung-head">Teacher netG</div>
+        <div class="rung-head">Compared via</div>
+        <div class="rung-head">Student netG_S</div>
+      </div>
+
+      <div class="rung">
+        <div class="feat t"><div class="d">depth 1 · edges, texture</div><div class="v">64 × 128 × 128</div></div>
+        <div class="bridge"><span class="chip">heatmap + raw</span></div>
+        <div class="feat s"><div class="d">depth 1</div><div class="v">64 × 128 × 128</div></div>
+      </div>
+
+      <div class="rung">
+        <div class="feat t"><div class="d">depth 2 · local patterns</div><div class="v">128 × 64 × 64</div></div>
+        <div class="bridge"><span class="chip">heatmap + raw</span></div>
+        <div class="feat s"><div class="d">depth 2</div><div class="v">128 × 64 × 64</div></div>
+      </div>
+
+      <div class="rung">
+        <div class="feat t"><div class="d">depth 3 · objects, regions</div><div class="v">256 × 32 × 32</div></div>
+        <div class="bridge"><span class="chip">heatmap + raw</span></div>
+        <div class="feat s"><div class="d">depth 3</div><div class="v">256 × 32 × 32</div></div>
+      </div>
+
+      <div class="rung">
+        <div class="feat t"><div class="d">depth 4 · scene layout</div><div class="v">512 × 16 × 16</div></div>
+        <div class="bridge"><span class="chip">heatmap + raw</span></div>
+        <div class="feat s"><div class="d">depth 4</div><div class="v">512 × 16 × 16</div></div>
+      </div>
+
+      <div class="rung">
+        <div class="feat t"><div class="d">bottleneck · whole scene</div><div class="v">512 × 1 × 1</div></div>
+        <div class="bridge"><span class="chip">raw only</span></div>
+        <div class="feat s"><div class="d">bottleneck</div><div class="v">512 × 1 × 1</div></div>
+      </div>
+    </div>
+
+    <p class="note">
+      Each <code>UnetSkipConnectionBlock</code> returns <code>cat([x, model(x)])</code>, so one
+      forward hook yields both halves: the encoder activation is the hook's input, the decoder
+      activation is the tail of its output. The 512 × 1 × 1 bottleneck appears in no block output
+      and needs its own hook on the innermost block's <code>model[1]</code>.
+    </p>
+  </section>
+
+  <!-- ============ MATCH FORM ============ -->
+  <section>
+    <h2>4 · What “compared” means at each tap</h2>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Term</th><th>Operation</th><th class="m">Compares</th><th>Survives band + resolution shift</th><th class="m">Weight</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="m">heatmap</td>
+            <td>Square, average over channels, L2-normalise → collapses the channel axis</td>
+            <td class="m">1 × H × W</td>
+            <td class="yes">yes</td>
+            <td class="w">1.0</td>
+          </tr>
+          <tr>
+            <td class="m">raw</td>
+            <td>Direct match through a learned 1×1 Conv2d adapter</td>
+            <td class="m">C × H × W</td>
+            <td class="no">no — adapter is fitted to S2</td>
+            <td class="w">0.3</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      The heatmap term leads because collapsing the channel axis makes it immune to the two
+      mismatches this project has: the teacher's blue channel vs the student's infrared, and
+      Sentinel-2's 10 m vs LISS-4's 5.8 m. The raw term keeps value-level detail at a weight low
+      enough that its Sentinel-2-fitted adapters don't dictate the solution.
+    </p>
+  </section>
+
+  <!-- ============ LOSSES ============ -->
+  <section>
+    <h2>5 · Complete objective</h2>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Loss</th><th class="m">Compares</th><th>Meaning</th><th class="m">Weight</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="grp" colspan="4">Group 1 — against ground truth · keeps the student honest, lets it beat the teacher</td></tr>
+          <tr><td class="m">L1</td><td class="m">I_g ↔ clear</td><td>Be pixel-accurate</td><td class="w">100</td></tr>
+          <tr><td class="m">L_ssim</td><td class="m">I_g ↔ clear</td><td>Look structurally right</td><td class="w">10</td></tr>
+          <tr><td class="m">L_adv</td><td class="m">netD_S → (B,1,30,30)</td><td>Look like a real photograph</td><td class="w">1</td></tr>
+          <tr><td class="m">L_freq</td><td class="m">I_g ↔ clear</td><td>Match low/mid frequencies, skip radar speckle</td><td class="w">0.5</td></tr>
+
+          <tr><td class="grp" colspan="4">Group 2 — against teacher outputs · consistency nudge</td></tr>
+          <tr><td class="m">L_out</td><td class="m">I_g[:, :2] ↔ fake_B[:, :2]</td><td>Agree with the teacher on the two shared bands only</td><td class="w">1</td></tr>
+          <tr><td class="m">L_attn</td><td class="m">I_M ↔ att_A</td><td>Spot clouds where the teacher spots them</td><td class="w">2</td></tr>
+
+          <tr><td class="grp" colspan="4">Group 3 — against teacher internals · this is where radar knowledge crosses over</td></tr>
+          <tr><td class="m">L_feat_enc</td><td class="m">student enc ↔ netG enc</td><td>Reason like the teacher at the fusion point</td><td class="w">1.0</td></tr>
+          <tr><td class="m">L_feat_dec</td><td class="m">student dec ↔ netG dec</td><td>Same, downstream — weaker signal</td><td class="w">0.3</td></tr>
+          <tr><td class="m">L_sar</td><td class="m">SARHead(s) ↔ netG2 feats</td><td>Infer what radar would have said</td><td class="w">1.0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ TRAIN VS INFERENCE ============ -->
+  <section>
+    <h2>6 · Training vs. deployment on LISS-4</h2>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Component</th><th class="m">Params</th><th>Training</th><th>LISS-4 inference</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="m">netG_S</td><td class="m">54.40 M</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td class="m">netA_S</td><td class="m">54.40 M</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td class="m">netD_S</td><td class="m">2.77 M</td><td class="yes">✓</td><td class="no">✗</td></tr>
+          <tr><td class="m">SAR heads · adapters</td><td class="m">small</td><td class="yes">✓</td><td class="no">✗ discarded</td></tr>
+          <tr><td class="m">Teacher (netA, netG2, netG)</td><td class="m">163.2 M</td><td class="yes">✓ frozen</td><td class="no">✗</td></tr>
+          <tr><td class="m">SAR input</td><td class="m">—</td><td class="yes">✓</td><td class="no">✗ no such instrument</td></tr>
+          <tr><td class="m">Clear ground truth</td><td class="m">—</td><td class="yes">✓</td><td class="no">✗</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <span class="h">The property that must hold</span>
+      <p>
+        <code>I_g</code> must remain a pure function of <code>I_c</code>. Everything in the right-hand
+        column above is scaffolding that shapes the trunk during training and is then thrown away.
+        What ships is 108.8 M parameters that take a cloudy 3-band image and return a clear one —
+        with the radar knowledge baked into the weights rather than needing a radar image at runtime.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    Shapes and parameter counts probed directly from <code>define_G</code> / <code>define_A</code> /
+    <code>define_D</code> at <code>ngf=64</code>, <code>ndf=64</code>, <code>norm=instance</code>,
+    input 256 × 256. Teacher weights frozen throughout.
+  </footer>
+
+</div>

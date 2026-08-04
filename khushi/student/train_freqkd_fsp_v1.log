@@ -1,0 +1,394 @@
+nohup: ignoring input
+------------ Options -------------
+A_cats: horse
+B_cats: zebra
+attn_cycle_weight: 1.0
+batchSize: 1
+beta1: 0.5
+checkpoints_dir: ./outputs/checkpoints
+continue_train: False
+cross_depth_weight: 10.0
+dataType: val2017
+dataroot: ../../SEN12MSCR_student
+dataset_mode: unaligned_sar
+display_freq: 100
+display_id: 0
+display_port: 8097
+display_single_pane_ncols: 0
+display_winsize: 256
+dist_act: none
+dist_beta: 2.0
+dist_eps: 1e-08
+dist_gamma: 2.0
+dist_intra_min_positions: 16
+epoch_count: 1
+fineSize: 256
+freqkd_eta: 0.1
+freqkd_min_spatial: 8
+freqkd_rc: 0.5
+freqkd_weight: 10.0
+fsp_distance: pearson
+fsp_eps: 1e-06
+fsp_min_positions: 0
+fsp_pairs: adjacent
+gamma_hall: 100.0
+gpu_ids: [0]
+hook_layers: 3,4,5,6,7
+identity: 0.0
+init_type: xavier
+input_nc: 3
+isTrain: True
+lambda3: 1.0
+lambda_A: 10.0
+lambda_B: 10.0
+loadSize: 256
+loss_attn_A: 1.0
+loss_attn_B: 1.0
+loss_weight: None
+lr: 0.0002
+lr_decay_iters: 100
+lr_policy: lambda
+max_dataset_size: inf
+model: pix2pix_attn_student_fsp
+nThreads: 0
+n_layers_D: 3
+name: sen12mscr_student_freqkd_fsp_v1
+ndf: 64
+ngf: 64
+niter: 20
+niter_decay: 10
+no_dropout: True
+no_flip: True
+no_html: True
+no_lsgan: False
+norm: instance
+output_nc: 3
+phase: train
+pool_size: 50
+print_freq: 100
+resize_or_crop: resize_and_crop
+save_epoch_freq: 5
+save_latest_freq: 5000
+serial_batches: False
+teacher_checkpoints_dir: ./outputs/checkpoints
+teacher_name: sen12mscr_teacher_v1
+teacher_which_epoch: latest
+use_cross_depth: True
+use_dist: False
+use_freqkd: True
+use_hall: False
+which_direction: AtoB
+which_direction_model: AtoB
+which_epoch: latest
+which_model_netA: unet_256
+which_model_netD: basic
+which_model_netG: unet_256
+which_model_netG2: unet_256
+-------------- End ----------------
+CustomDatasetDataLoader
+dataset [UnalignedDataset_sar] was created
+#training images = 9127
+pix2pix_attn_student_fsp
+/workspace/Cloudy-with-a-chance-of-kofta/khushi/student/models/pix2pix_attn_student_fsp_model.py:260: UserWarning: The torch.cuda.*DtypeTensor constructors are no longer recommended. It's best to use methods such as torch.tensor(data, dtype=*, device='cuda') to create tensors. (Triggered internally at ../torch/csrc/tensor/python_tensor.cpp:78.)
+  self.zeros = self.Tensor(nb, 1, size, size)
+initialization method [xavier]
+/workspace/Cloudy-with-a-chance-of-kofta/khushi/student/models/networks.py:33: FutureWarning: `nn.init.xavier_normal` is now deprecated in favor of `nn.init.xavier_normal_`.
+  init.xavier_normal(m.weight.data, gain=1)
+initialization method [xavier]
+initialization method [xavier]
+initialization method [xavier]
+initialization method [xavier]
+Loading G   from ./outputs/checkpoints/sen12mscr_teacher_v1/latest_net_G.pth
+/workspace/Cloudy-with-a-chance-of-kofta/khushi/student/models/pix2pix_attn_student_fsp_model.py:434: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  network.load_state_dict(torch.load(path), strict=False)
+Loading A   from ./outputs/checkpoints/sen12mscr_teacher_v1/latest_net_A.pth
+Loading G2  from ./outputs/checkpoints/sen12mscr_teacher_v1/latest_net_G2.pth
+Loading D   from ./outputs/checkpoints/sen12mscr_teacher_v1/latest_net_D.pth
+Re-initialized netH first conv: Conv2d(3, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+Hook layers (0=outermost): [3, 4, 5, 6, 7]
+DIST: beta(inter)=2  gamma(intra)=2  act=none  intra_min_positions=16
+DIST: gamma_hall=100 (Hoffman exact-match term; 0 = pure DIST)
+Terms enabled: hall=False  dist=False  cross_depth=True
+FSP: pairs=[(3, 4), (4, 5), (5, 6), (6, 7)] (adjacent)  distance=pearson  weight=10  min_positions=0
+FreqKD: enabled=True  weight=10  rc=0.5  eta=0.1  min_spatial=8
+---------- Student (DIST) networks initialized -------------
+UnetGenerator(
+  (model): UnetSkipConnectionBlock(
+    (model): Sequential(
+      (0): Conv2d(6, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+      (1): UnetSkipConnectionBlock(
+        (model): Sequential(
+          (0): LeakyReLU(negative_slope=0.2, inplace=True)
+          (1): Conv2d(64, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+          (2): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+          (3): UnetSkipConnectionBlock(
+            (model): Sequential(
+              (0): LeakyReLU(negative_slope=0.2, inplace=True)
+              (1): Conv2d(128, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+              (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+              (3): UnetSkipConnectionBlock(
+                (model): Sequential(
+                  (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                  (1): Conv2d(256, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                  (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                  (3): UnetSkipConnectionBlock(
+                    (model): Sequential(
+                      (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                      (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                      (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                      (3): UnetSkipConnectionBlock(
+                        (model): Sequential(
+                          (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                          (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                          (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                          (3): UnetSkipConnectionBlock(
+                            (model): Sequential(
+                              (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                              (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                              (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                              (3): UnetSkipConnectionBlock(
+                                (model): Sequential(
+                                  (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                                  (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                  (2): ReLU(inplace=True)
+                                  (3): ConvTranspose2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                  (4): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                                )
+                              )
+                              (4): ReLU(inplace=True)
+                              (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                              (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                            )
+                          )
+                          (4): ReLU(inplace=True)
+                          (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                          (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                        )
+                      )
+                      (4): ReLU(inplace=True)
+                      (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                      (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                    )
+                  )
+                  (4): ReLU(inplace=True)
+                  (5): ConvTranspose2d(1024, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                  (6): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                )
+              )
+              (4): ReLU(inplace=True)
+              (5): ConvTranspose2d(512, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+              (6): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+            )
+          )
+          (4): ReLU(inplace=True)
+          (5): ConvTranspose2d(256, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+          (6): InstanceNorm2d(64, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+        )
+      )
+      (2): ReLU(inplace=True)
+      (3): ConvTranspose2d(128, 3, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+      (4): Tanh()
+    )
+  )
+)
+Total number of parameters: 54407171
+UnetGenerator(
+  (model): UnetSkipConnectionBlock(
+    (model): Sequential(
+      (0): Conv2d(3, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+      (1): UnetSkipConnectionBlock(
+        (model): Sequential(
+          (0): LeakyReLU(negative_slope=0.2, inplace=True)
+          (1): Conv2d(64, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+          (2): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+          (3): UnetSkipConnectionBlock(
+            (model): Sequential(
+              (0): LeakyReLU(negative_slope=0.2, inplace=True)
+              (1): Conv2d(128, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+              (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+              (3): UnetSkipConnectionBlock(
+                (model): Sequential(
+                  (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                  (1): Conv2d(256, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                  (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                  (3): UnetSkipConnectionBlock(
+                    (model): Sequential(
+                      (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                      (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                      (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                      (3): UnetSkipConnectionBlock(
+                        (model): Sequential(
+                          (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                          (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                          (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                          (3): UnetSkipConnectionBlock(
+                            (model): Sequential(
+                              (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                              (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                              (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                              (3): UnetSkipConnectionBlock(
+                                (model): Sequential(
+                                  (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                                  (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                  (2): ReLU(inplace=True)
+                                  (3): ConvTranspose2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                  (4): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                                )
+                              )
+                              (4): ReLU(inplace=True)
+                              (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                              (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                            )
+                          )
+                          (4): ReLU(inplace=True)
+                          (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                          (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                        )
+                      )
+                      (4): ReLU(inplace=True)
+                      (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                      (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                    )
+                  )
+                  (4): ReLU(inplace=True)
+                  (5): ConvTranspose2d(1024, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                  (6): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                )
+              )
+              (4): ReLU(inplace=True)
+              (5): ConvTranspose2d(512, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+              (6): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+            )
+          )
+          (4): ReLU(inplace=True)
+          (5): ConvTranspose2d(256, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+          (6): InstanceNorm2d(64, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+        )
+      )
+      (2): ReLU(inplace=True)
+      (3): ConvTranspose2d(128, 3, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+      (4): Tanh()
+    )
+  )
+)
+Total number of parameters: 54404099
+Sequential(
+  (0): UnetGenerator(
+    (model): UnetSkipConnectionBlock(
+      (model): Sequential(
+        (0): Conv2d(3, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+        (1): UnetSkipConnectionBlock(
+          (model): Sequential(
+            (0): LeakyReLU(negative_slope=0.2, inplace=True)
+            (1): Conv2d(64, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+            (2): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+            (3): UnetSkipConnectionBlock(
+              (model): Sequential(
+                (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                (1): Conv2d(128, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                (3): UnetSkipConnectionBlock(
+                  (model): Sequential(
+                    (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                    (1): Conv2d(256, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                    (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                    (3): UnetSkipConnectionBlock(
+                      (model): Sequential(
+                        (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                        (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                        (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                        (3): UnetSkipConnectionBlock(
+                          (model): Sequential(
+                            (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                            (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                            (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                            (3): UnetSkipConnectionBlock(
+                              (model): Sequential(
+                                (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                                (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                (2): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                                (3): UnetSkipConnectionBlock(
+                                  (model): Sequential(
+                                    (0): LeakyReLU(negative_slope=0.2, inplace=True)
+                                    (1): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                    (2): ReLU(inplace=True)
+                                    (3): ConvTranspose2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                    (4): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                                  )
+                                )
+                                (4): ReLU(inplace=True)
+                                (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                                (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                              )
+                            )
+                            (4): ReLU(inplace=True)
+                            (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                            (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                          )
+                        )
+                        (4): ReLU(inplace=True)
+                        (5): ConvTranspose2d(1024, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                        (6): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                      )
+                    )
+                    (4): ReLU(inplace=True)
+                    (5): ConvTranspose2d(1024, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                    (6): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+                  )
+                )
+                (4): ReLU(inplace=True)
+                (5): ConvTranspose2d(512, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+                (6): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+              )
+            )
+            (4): ReLU(inplace=True)
+            (5): ConvTranspose2d(256, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
+            (6): InstanceNorm2d(64, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+          )
+        )
+        (2): ReLU(inplace=True)
+        (3): ConvTranspose2d(128, 1, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+        (4): Tanh()
+      )
+    )
+  )
+  (1): Norm()
+)
+Total number of parameters: 54400001
+NLayerDiscriminator(
+  (model): Sequential(
+    (0): Conv2d(6, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (1): LeakyReLU(negative_slope=0.2, inplace=True)
+    (2): Conv2d(64, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (3): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+    (4): LeakyReLU(negative_slope=0.2, inplace=True)
+    (5): Conv2d(128, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (6): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+    (7): LeakyReLU(negative_slope=0.2, inplace=True)
+    (8): Conv2d(256, 512, kernel_size=(4, 4), stride=(1, 1), padding=(1, 1))
+    (9): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+    (10): LeakyReLU(negative_slope=0.2, inplace=True)
+    (11): Conv2d(512, 1, kernel_size=(4, 4), stride=(1, 1), padding=(1, 1))
+  )
+)
+Total number of parameters: 2767809
+-----------------------------------------------
+model [Pix2Pix_attn_Student_FSP_Model] was created
+(epoch: 1, iters: 100, time: 0.211) G_GAN: 0.426 G_L1: 0.881 G_SSIM: 0.371 H_L1: 0.255 H_SSIM: 0.591 D_real: 0.047 D_fake: 0.142 att_A: 0.678 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 1.099 L_freqkd: 0.011 fsp_3_4: 0.171 fsp_4_5: 0.275 fsp_5_6: 0.398 fsp_6_7: 0.255 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.007 fkd_l5_hi: 0.007 
+(epoch: 1, iters: 200, time: 0.191) G_GAN: 0.306 G_L1: 0.420 G_SSIM: 0.305 H_L1: 0.221 H_SSIM: 0.427 D_real: 0.025 D_fake: 0.024 att_A: 0.769 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.931 L_freqkd: 0.011 fsp_3_4: 0.151 fsp_4_5: 0.249 fsp_5_6: 0.322 fsp_6_7: 0.208 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.007 fkd_l5_hi: 0.007 
+(epoch: 1, iters: 300, time: 0.191) G_GAN: 0.355 G_L1: 0.613 G_SSIM: 0.384 H_L1: 0.244 H_SSIM: 0.487 D_real: 0.045 D_fake: 0.020 att_A: 0.548 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.811 L_freqkd: 0.008 fsp_3_4: 0.146 fsp_4_5: 0.161 fsp_5_6: 0.211 fsp_6_7: 0.293 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.005 fkd_l5_hi: 0.006 
+(epoch: 1, iters: 400, time: 0.188) G_GAN: 0.216 G_L1: 0.483 G_SSIM: 0.150 H_L1: 0.294 H_SSIM: 0.614 D_real: 0.040 D_fake: 0.359 att_A: 0.453 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.951 L_freqkd: 0.008 fsp_3_4: 0.162 fsp_4_5: 0.217 fsp_5_6: 0.243 fsp_6_7: 0.328 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.005 fkd_l5_hi: 0.007 
+(epoch: 1, iters: 500, time: 0.205) G_GAN: 1.043 G_L1: 0.572 G_SSIM: 0.235 H_L1: 0.233 H_SSIM: 0.433 D_real: 0.055 D_fake: 0.425 att_A: 0.472 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.762 L_freqkd: 0.009 fsp_3_4: 0.146 fsp_4_5: 0.194 fsp_5_6: 0.279 fsp_6_7: 0.143 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.005 fkd_l5_hi: 0.006 
+(epoch: 1, iters: 600, time: 0.141) G_GAN: 0.674 G_L1: 0.600 G_SSIM: 0.297 H_L1: 0.274 H_SSIM: 0.563 D_real: 0.025 D_fake: 0.049 att_A: 0.632 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.775 L_freqkd: 0.008 fsp_3_4: 0.139 fsp_4_5: 0.227 fsp_5_6: 0.182 fsp_6_7: 0.227 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.005 fkd_l5_hi: 0.006 
+(epoch: 1, iters: 700, time: 0.243) G_GAN: 0.206 G_L1: 0.601 G_SSIM: 0.328 H_L1: 0.221 H_SSIM: 0.442 D_real: 0.055 D_fake: 0.034 att_A: 0.469 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.871 L_freqkd: 0.009 fsp_3_4: 0.169 fsp_4_5: 0.207 fsp_5_6: 0.286 fsp_6_7: 0.210 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.006 fkd_l5_hi: 0.007 
+(epoch: 1, iters: 800, time: 0.194) G_GAN: 0.797 G_L1: 0.773 G_SSIM: 0.575 H_L1: 0.257 H_SSIM: 0.624 D_real: 0.028 D_fake: 0.036 att_A: 0.635 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.820 L_freqkd: 0.008 fsp_3_4: 0.129 fsp_4_5: 0.217 fsp_5_6: 0.203 fsp_6_7: 0.271 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.005 fkd_l5_hi: 0.006 
+(epoch: 1, iters: 900, time: 0.231) G_GAN: 1.296 G_L1: 0.905 G_SSIM: 0.336 H_L1: 0.206 H_SSIM: 0.397 D_real: 0.230 D_fake: 0.031 att_A: 0.749 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 1.013 L_freqkd: 0.012 fsp_3_4: 0.165 fsp_4_5: 0.262 fsp_5_6: 0.288 fsp_6_7: 0.297 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.007 fkd_l5_hi: 0.009 
+(epoch: 1, iters: 1000, time: 0.189) G_GAN: 0.668 G_L1: 0.489 G_SSIM: 0.210 H_L1: 0.223 H_SSIM: 0.461 D_real: 0.315 D_fake: 0.089 att_A: 0.462 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.764 L_freqkd: 0.009 fsp_3_4: 0.135 fsp_4_5: 0.280 fsp_5_6: 0.220 fsp_6_7: 0.130 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.006 fkd_l5_hi: 0.008 
+(epoch: 1, iters: 1100, time: 0.185) G_GAN: 0.267 G_L1: 0.289 G_SSIM: 0.041 H_L1: 0.144 H_SSIM: 0.331 D_real: 0.052 D_fake: 0.014 att_A: 0.443 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.769 L_freqkd: 0.010 fsp_3_4: 0.171 fsp_4_5: 0.198 fsp_5_6: 0.272 fsp_6_7: 0.128 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.006 fkd_l5_hi: 0.007 
+(epoch: 1, iters: 1200, time: 0.194) G_GAN: 0.131 G_L1: 0.388 G_SSIM: 0.192 H_L1: 0.238 H_SSIM: 0.496 D_real: 0.044 D_fake: 0.055 att_A: 0.399 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.576 L_freqkd: 0.007 fsp_3_4: 0.117 fsp_4_5: 0.148 fsp_5_6: 0.193 fsp_6_7: 0.118 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.004 fkd_l5_hi: 0.005 
+(epoch: 1, iters: 1300, time: 0.192) G_GAN: 0.870 G_L1: 0.607 G_SSIM: 0.216 H_L1: 0.214 H_SSIM: 0.403 D_real: 0.024 D_fake: 0.061 att_A: 0.634 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.849 L_freqkd: 0.009 fsp_3_4: 0.259 fsp_4_5: 0.279 fsp_5_6: 0.198 fsp_6_7: 0.114 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.005 fkd_l5_hi: 0.007 
+(epoch: 1, iters: 1400, time: 0.178) G_GAN: 0.534 G_L1: 0.418 G_SSIM: 0.259 H_L1: 0.239 H_SSIM: 0.530 D_real: 0.047 D_fake: 0.088 att_A: 0.500 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.923 L_freqkd: 0.010 fsp_3_4: 0.164 fsp_4_5: 0.255 fsp_5_6: 0.237 fsp_6_7: 0.267 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.007 fkd_l5_hi: 0.008 
+(epoch: 1, iters: 1500, time: 0.199) G_GAN: 0.460 G_L1: 0.296 G_SSIM: 0.087 H_L1: 0.369 H_SSIM: 0.727 D_real: 0.361 D_fake: 0.028 att_A: 0.195 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.765 L_freqkd: 0.010 fsp_3_4: 0.161 fsp_4_5: 0.168 fsp_5_6: 0.228 fsp_6_7: 0.209 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.007 fkd_l5_hi: 0.007 
+(epoch: 1, iters: 1600, time: 0.189) G_GAN: 1.162 G_L1: 0.719 G_SSIM: 0.239 H_L1: 0.221 H_SSIM: 0.394 D_real: 0.284 D_fake: 0.084 att_A: 0.728 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.914 L_freqkd: 0.009 fsp_3_4: 0.250 fsp_4_5: 0.195 fsp_5_6: 0.200 fsp_6_7: 0.268 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.006 fkd_l5_hi: 0.007 
+(epoch: 1, iters: 1700, time: 0.188) G_GAN: 0.920 G_L1: 0.516 G_SSIM: 0.243 H_L1: 0.214 H_SSIM: 0.464 D_real: 0.013 D_fake: 0.009 att_A: 0.763 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.804 L_freqkd: 0.008 fsp_3_4: 0.150 fsp_4_5: 0.205 fsp_5_6: 0.280 fsp_6_7: 0.170 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.005 fkd_l5_hi: 0.007 
+(epoch: 1, iters: 1800, time: 0.208) G_GAN: 0.593 G_L1: 0.515 G_SSIM: 0.158 H_L1: 0.191 H_SSIM: 0.431 D_real: 0.153 D_fake: 0.039 att_A: 0.375 L_hall: 0.000 L_inter: 0.000 L_intra: 0.000 L_fsp: 0.703 L_freqkd: 0.010 fsp_3_4: 0.117 fsp_4_5: 0.216 fsp_5_6: 0.250 fsp_6_7: 0.119 fkd_l3_lo: 0.001 fkd_l3_hi: 0.001 fkd_l4_lo: 0.002 fkd_l4_hi: 0.002 fkd_l5_lo: 0.007 fkd_l5_hi: 0.007 
